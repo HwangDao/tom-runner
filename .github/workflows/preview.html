@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tôm Preview (Run Animation)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    html,body{margin:0;height:100%;background:#0b1020;color:#fff;font-family:system-ui,Segoe UI,Roboto,Arial}
+    .wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
+    canvas{image-rendering: pixelated; image-rendering: crisp-edges; border:1px solid #223; background:#0e1633; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.4)}
+    .info{opacity:.8;margin-top:12px;font-size:14px}
+    a{color:#cfe3ff}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <canvas id="c" width="384" height="192"></canvas>
+  <div class="info">Preview chỉ để xem sprite hoạt động (không phải game). Frames: 4 (run), 96×96.</div>
+</div>
+<script>
+const FRAME_W=96, FRAME_H=96;
+const RUN_FRAMES=4, FPS=10;
+const CANVAS_W=384, CANVAS_H=192;
+const SCALE=2;
+const Y=48;
+let img=new Image();
+img.src="tom_spritesheet.png";
+let last=0, acc=0, idx=0;
+const c=document.getElementById('c');
+const ctx=c.getContext('2d');
+ctx.imageSmoothingEnabled=false;
+
+function loop(ts){
+  if(!last) last=ts;
+  const dt=(ts-last)/1000; last=ts;
+  acc+=dt;
+  const spf=1/FPS;
+  while(acc>=spf){ acc-=spf; idx=(idx+1)%RUN_FRAMES; }
+  ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
+  // draw background stripe
+  ctx.fillStyle="#0a0f25"; ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+  // ground
+  ctx.fillStyle="#203050"; ctx.fillRect(0, Y+FRAME_H*SCALE/2+8, CANVAS_W, 6);
+  // draw current frame from first row (y=0)
+  ctx.drawImage(img, idx*FRAME_W, 0, FRAME_W, FRAME_H, CANVAS_W/2-FRAME_W*SCALE/2, Y, FRAME_W*SCALE, FRAME_H*SCALE);
+  requestAnimationFrame(loop);
+}
+img.onload=()=>requestAnimationFrame(loop);
+</script>
+</body>
+</html>
